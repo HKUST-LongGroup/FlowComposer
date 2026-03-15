@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="FlowComposer: Composable Flows for Compositional Zero-Shot Learning">
+  <meta name="keywords" content="Compositional Zero-Shot Learning, Flow Matching, Vision-Language Models, CZSL">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlowComposer: Composable Flows for Compositional Zero-Shot Learning</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script type="text/javascript" src="./static/js/copy.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <style>
+    :root {
+      --flow-navy: #14213d;
+      --flow-blue: #1f6feb;
+      --flow-cyan: #49b6ff;
+      --flow-mint: #dff7f5;
+      --flow-cream: #f8f4ec;
+      --flow-ink: #1d2433;
+      --flow-muted: #5b657a;
+      --flow-line: rgba(20, 33, 61, 0.12);
+      --flow-card: rgba(255, 255, 255, 0.86);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      color: var(--flow-ink);
+      background:
+        radial-gradient(circle at top left, rgba(73, 182, 255, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(31, 111, 235, 0.12), transparent 24%),
+        linear-gradient(180deg, #f6fbff 0%, #ffffff 22%, var(--flow-cream) 100%);
+    }
+
+    .hero.flow-hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(20, 33, 61, 0.96), rgba(24, 74, 146, 0.94)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+      color: #fff;
+    }
+
+    .hero.flow-hero::before,
+    .hero.flow-hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(6px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .hero.flow-hero::before {
+      width: 26rem;
+      height: 26rem;
+      top: -8rem;
+      right: -7rem;
+      background: radial-gradient(circle, rgba(73, 182, 255, 0.34), transparent 70%);
+    }
+
+    .hero.flow-hero::after {
+      width: 18rem;
+      height: 18rem;
+      bottom: -6rem;
+      left: -4rem;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 70%);
+    }
+
+    .publication-title {
+      color: #fff;
+      line-height: 1.08;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      max-width: 52rem;
+      margin: 0 auto 1.75rem;
+      color: #fff;
+      font-size: 1.15rem;
+    }
+
+    .hero-subtitle strong {
+      color: #fff;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .hero-pill {
+      padding: 0.7rem 1rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+    }
+
+    .publication-links .button {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .publication-links .button:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .section {
+      padding-top: 3.75rem;
+      padding-bottom: 3.75rem;
+    }
+
+    .section-card {
+      background: var(--flow-card);
+      border: 1px solid var(--flow-line);
+      border-radius: 28px;
+      box-shadow: 0 18px 50px rgba(20, 33, 61, 0.08);
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      color: var(--flow-navy);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-lead {
+      color: var(--flow-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .highlight-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .highlight-card {
+      height: 100%;
+      padding: 1.2rem;
+      border-radius: 22px;
+      border: 1px solid var(--flow-line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(223, 247, 245, 0.75));
+    }
+
+    .highlight-card h3 {
+      color: var(--flow-navy);
+      margin-bottom: 0.6rem;
+      font-size: 1.05rem;
+    }
+
+    .figure-frame {
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid var(--flow-line);
+      background: #fff;
+      box-shadow: 0 16px 40px rgba(20, 33, 61, 0.07);
+    }
+
+    .figure-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .teaser-frame {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .figure-caption {
+      margin-top: 0.85rem;
+      color: var(--flow-muted);
+      font-size: 0.96rem;
+      text-align: center;
+    }
+
+    .result-points {
+      margin-top: 1.25rem;
+    }
+
+    .result-points li {
+      margin-bottom: 0.65rem;
+      color: var(--flow-muted);
+    }
+
+    .citation-box {
+      position: relative;
+      border-radius: 22px;
+      background: #101828;
+      color: #e8eefb;
+      padding: 1.4rem;
+      overflow: auto;
+    }
+
+    .citation-box code {
+      background: transparent;
+      color: inherit;
+      white-space: pre-wrap;
+    }
+
+    .image-note {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-left: 4px solid var(--flow-blue);
+      border-radius: 14px;
+      background: rgba(73, 182, 255, 0.08);
+      color: var(--flow-muted);
+    }
+
+    #footer {
+      padding-top: 1rem;
+      padding-bottom: 3rem;
+    }
+
+    @media screen and (max-width: 768px) {
+      .highlight-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-card {
+        padding: 1.4rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero flow-hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">FlowComposer: Composable Flows for Compositional Zero-Shot Learning</h1>
+          <p class="hero-subtitle"><strong>CVPR 2026</strong></p>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Zhenqi He,</span>
+            <span class="author-block">Lin Li,</span>
+            <span class="author-block">Long Chen<sup>*</sup></span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top: 0.35rem;">
+            <span class="author-block">LONG Group, The Hong Kong University of Science and Technology</span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top: 0.35rem;">
+            <span class="author-block"><sup>*</sup>Corresponding author</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded">
+                  <span class="icon"><i class="fas fa-globe"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code (coming soon)</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#citation" class="external-link button is-normal is-rounded">
+                  <span class="icon"><i class="fas fa-quote-right"></i></span>
+                  <span>BibTeX</span>
+                </a>
+              </span>
+            </div>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-pill">Explicit composition in embedding space</div>
+            <div class="hero-pill">Primitive flows + learnable Composer</div>
+            <div class="hero-pill">Plug-and-play gains on three public CZSL benchmarks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="section-card">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3 section-title">Abstract</h2>
+          <p class="section-lead">
+            Compositional zero-shot learning recognizes unseen attribute-object compositions by recombining primitives learned from seen pairs.
+            FlowComposer revisits this setting through flow matching and replaces implicit token-level composition with an explicit transport process in the embedding space.
+          </p>
+
+          <div class="content has-text-justified" style="margin-top: 1.5rem;">
+            <p>
+              Existing PEFT-based CZSL methods usually decompose image features with visual disentanglers and model composition through prompt concatenation or branch-wise prompt tuning.
+              As illustrated in the teaser, this design still constructs compositions implicitly at the token level, which can leave unseen compositions poorly aligned with image features.
+            </p>
+            <p>
+              FlowComposer addresses them with two primitive flows that transport visual features toward attribute and object text embeddings, plus a learnable Composer that explicitly fuses their velocity fields into a composition flow.
+              The figure also highlights the second issue, remained feature entanglement, which motivates the leakage-guided augmentation used to turn cross-branch leakage into auxiliary supervision.
+            </p>
+          </div>
+
+          <div class="highlight-grid">
+            <div class="highlight-card">
+              <h3>Primitive Flows</h3>
+              <p>Learn time-conditioned transports from visual embeddings to attribute and object text targets instead of only relying on prompt engineering.</p>
+            </div>
+            <div class="highlight-card">
+              <h3>Learnable Composer</h3>
+              <p>Predict combination coefficients and explicitly compose primitive velocity fields into a composition flow in embedding space.</p>
+            </div>
+            <div class="highlight-card">
+              <h3>Leakage-Guided Augmentation</h3>
+              <p>Reuses imperfectly disentangled features as constructive auxiliary signals rather than treating residual entanglement purely as noise.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="section-card">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3 section-title">Method</h2>
+          <p class="section-lead">
+            FlowComposer is model-agnostic and can be integrated into existing CZSL baselines as a plug-and-play component.
+          </p>
+
+          <div class="figure-frame">
+            <img src="./images/framework.png" alt="FlowComposer framework">
+          </div>
+          <p class="figure-caption">
+            Overview of FlowComposer. The model learns primitive flows for attribute and object transport, predicts composition coefficients with the Composer, and adds leakage-guided augmentation to reuse residual cross-branch cues during training.
+          </p>
+
+          <div class="content has-text-justified" style="margin-top: 1.5rem;">
+            <p>
+              The framework first learns two primitive flows that move visual embeddings toward attribute and object text embeddings.
+              Instead of composing concepts through token concatenation, FlowComposer approximates the composition velocity as a combination of primitive velocities and lets the Composer predict the combination coefficients.
+            </p>
+            <p>
+              This design makes composition an explicit operation in the shared embedding space, which is exactly the part the paper argues is missing in prior PEFT-style CZSL pipelines.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="results">
+  <div class="container is-max-desktop">
+    <div class="section-card">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3 section-title">Results</h2>
+          <p class="section-lead">
+            The paper evaluates FlowComposer on MIT-States, UT-Zappos, and C-GQA by integrating it into standard CZSL baselines.
+          </p>
+
+          <div class="figure-frame">
+            <img src="./images/benchmark.png" alt="FlowComposer benchmark results">
+          </div>
+          <p class="figure-caption">
+            Main quantitative comparison on MIT-States, UT-Zappos, and C-GQA under both closed-world and open-world settings. FlowComposer consistently improves CSP and Troika when plugged into the same baseline pipelines.
+          </p>
+
+          <ul class="result-points">
+            <li>In the closed-world setting, adding FlowComposer to CSP improves all three datasets, including MIT-States from 47.0/49.6/36.6/19.6 to 48.3/50.4/37.6/20.7 on Seen, Unseen, HM, and AUC.</li>
+            <li>With the stronger Troika baseline, FlowComposer further improves performance, reaching 51.5 HM and 23.5 AUC on MIT-States, 58.6 HM and 46.8 AUC on UT-Zappos, and 34.0 HM and 15.9 AUC on C-GQA.</li>
+            <li>These gains remain visible in the open-world setting, supporting the paper's claim that explicit flow composition generalizes better to unseen attribute-object compositions.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="section-card">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <h2 class="title is-3 section-title">Ablation and Analysis</h2>
+          <p class="section-lead">
+            The ablation study shows that primitive flows, the Composer, and leakage-guided augmentation are complementary rather than redundant.
+          </p>
+
+          <div class="figure-frame">
+            <img src="./images/ablation.png" alt="FlowComposer ablation results">
+          </div>
+          <p class="figure-caption">
+            Ablation study on MIT-States and UT-Zappos. Primitive flows, the Composer, and leakage-guided augmentation each contribute, and the full model achieves the best overall AUC while remaining competitive on Seen, Unseen, and HM.
+          </p>
+
+          <div class="content has-text-justified" style="margin-top: 1.5rem;">
+            <p>
+              Starting from the baseline, primitive flows alone already improve recognition. Adding leakage-guided augmentation raises MIT-States to 40.3 HM and 23.3 AUC, while adding the Composer raises UT-Zappos to 58.5 HM and 45.8 AUC.
+            </p>
+            <p>
+              When all three components are combined, the full model reaches 23.5 AUC on MIT-States and 46.8 AUC on UT-Zappos, supporting the paper's central claim that composition should be learned explicitly over primitive transports rather than only through prompts.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="citation">
+  <div class="container is-max-desktop">
+    <div class="section-card">
+      <h2 class="title is-3 section-title">Citation</h2>
+      <p class="section-lead">Update the venue or arXiv field once the final public metadata is ready.</p>
+      <div class="citation-box">
+<pre><code id="BibTeX">@inproceedings{He2026FlowComposer,
+  author    = {Zhenqi He and Lin Li and Long Chen},
+  title     = {FlowComposer: Composable Flows for Compositional Zero-Shot Learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2026}
+}</code><button class="copy-button" style="--button-hover-background: #1f6feb; --button-color: var(--white); --button-background: #1f6feb; --button-margin-bottom: 0;" onclick="copyToClipboard('BibTeX','BibTeX_cop')"><i class="fa fa-copy"></i></button><p id="BibTeX_cop" style="display:none;color: #cbd5e1">Copied!</p></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="footer">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>This website is based on the Nerfies project page template and adapted for FlowComposer.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
