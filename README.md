@@ -16,7 +16,7 @@ Zhenqi He, Lin Li, Long Chen
 
 ## Code
 
-The code is expected to be released before July 2026. We will update this repository once the implementation is ready.
+Please refer to ``./code``
 
 ## Citation
 
